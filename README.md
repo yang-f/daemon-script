@@ -1,1 +1,1 @@
-# daemon-script
+# run your app as daemon

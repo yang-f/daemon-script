@@ -1,0 +1,60 @@
+#!/bin/bash  
+  
+#description:demo  
+# chkconfig: 2345 80 5
+  
+EXEC_PATH=/your/daemon/exe/path
+EXEC=name
+DAEMON=/your/daemon/full/path/name 
+PID_FILE=/var/run/your-daemon.pid  
+  
+. /etc/rc.d/init.d/functions  
+  
+if [ ! -x $EXEC_PATH/$EXEC ] ; then  
+       echo "ERROR: $DAEMON not found"  
+       exit 1  
+fi  
+  
+stop()  
+{  
+       echo "Stoping $EXEC ..."  
+       ps aux | grep "$DAEMON" | kill -9 `awk '{print $2}'` >/dev/null 2>&1  
+       rm -f $PID_FILE  
+       usleep 100  
+       echo "Shutting down $EXEC: [  OK  ]"      
+}  
+  
+start()  
+{  
+       echo "Starting $EXEC ..."  
+       $DAEMON > /dev/null &  
+       pidof $EXEC > $PID_FILE  
+       usleep 100  
+       echo "Starting $EXEC: [  OK  ]"          
+}  
+  
+restart()  
+{  
+    stop  
+    start  
+}  
+  
+case "$1" in  
+    start)  
+        start  
+        ;;  
+    stop)  
+        stop  
+        ;;  
+    restart)  
+        restart  
+        ;;  
+    status)  
+        status -p $PID_FILE $DAEMON  
+        ;;  
+    *)  
+        echo "Usage: service $EXEC {start|stop|restart|status}"  
+        exit 1  
+esac  
+  
+exit $?
